@@ -12,8 +12,16 @@ import requests
 import time
 import os
 
-ini_path = r'D:\3-Python\identify_api_test\config\config.ini'
-# ini_path = './config/config.ini'
+
+def get_ini_path():
+    sep = os.path.sep
+    # 获取当前文件路径
+    current_path = os.path.abspath(__file__)
+    # 获取上一级目录
+    parent_path = current_path.split(sep)[:-2]
+    # 获取ini文件路径
+    ini_path = sep.join(parent_path) + sep + 'config' + sep + 'config.ini'
+    return ini_path
 
 
 def create_random_str(str_len: int = 13):
@@ -50,11 +58,12 @@ def log_config():
 
 
 log_config()
+config_path = get_ini_path()
 
 
 def get_config(key: str, values: str):
     cf = configparser.ConfigParser()
-    cf.read(ini_path, encoding='utf-8-sig')
+    cf.read(config_path, encoding='utf-8-sig')
     config = cf.get(key, values)
     return config
 
@@ -119,7 +128,5 @@ def find_object_from_list(res: dict, list_name: str, target_object_value: str, s
 
 
 if __name__ == '__main__':
-    a = {"hasError":False,"errorDesc":"","data":{"totalCount":1,"voiceTagList":[{"voiceTagId":"tag20200730095903_fc482f6934914a1ab66d5de450a71faa","voiceTagName":"标记名称","criminalCaseId":"case20200729150045_f90f58510305418da98ef272c0ee5e17","voiceFileId":"file20200729150120_7182d8dfab9d4b228381a1d30679578a","phonemeId":"","beginTime":452,"endTime":649,"comment":"标记备注","create_time":1596074343069,"color":"#D37F00"}]}}
-    b = find_object_from_list(a, 'voiceTagList', 'tag20200730095903_fc482f693491a1ab66d5de450a71faa', 'voiceTagId')
-    print(b)
+    print()
 
