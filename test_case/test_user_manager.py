@@ -49,11 +49,10 @@ class TestUser:
         give_case_auth = bool(data.get('give_case_auth'))
         manage_user_auth = bool(data.get('manage_user_auth'))
         over_case_auth = bool(data.get('over_case_auth'))
-        rename_case_auth = bool(data.get('rename_case_auth'))
         share_case_auth = bool(data.get('share_case_auth'))
         # 修改用户组权限
         api_object.update_auth_group(group_id, allocate_case_auth, create_case_auth, delete_case_auth, give_case_auth,
-                                     manage_user_auth, over_case_auth, rename_case_auth, share_case_auth)
+                                     manage_user_auth, over_case_auth, share_case_auth)
         # 验证权限是否正确
         auth_list = api_object.get_group_auth(group_id)
         assert allocate_case_auth == auth_list.get('AuthAllocateCase')
@@ -63,7 +62,6 @@ class TestUser:
         assert give_case_auth == auth_list.get('AuthGiveCase')
         assert manage_user_auth == auth_list.get('AuthManageUser')
         assert over_case_auth == auth_list.get('AuthOverCase')
-        assert rename_case_auth == auth_list.get('AuthRenameCase')
         assert share_case_auth == auth_list.get('AuthShareCase')
 
     def test_add_user(self, get_api_object, add_user):

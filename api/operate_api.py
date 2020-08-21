@@ -472,12 +472,11 @@ class OperateApi:
 
     def update_auth_group(self, group_id, allocate_case_auth: bool = True, create_case_auth: bool = True,
                           delete_case_auth: bool = True, edit_case_auth: bool = True, give_case_auth: bool = True,
-                          manage_user_auth: bool = True, over_case_auth: bool = True, rename_case_auth: bool = True,
-                          share_case_auth: bool = True):
+                          manage_user_auth: bool = True, over_case_auth: bool = True, share_case_auth: bool = True):
         """修改权限组权限"""
         res = self.identify_api.update_auth_group(group_id, allocate_case_auth, create_case_auth, delete_case_auth,
                                                   edit_case_auth, give_case_auth, manage_user_auth, over_case_auth,
-                                                  rename_case_auth, share_case_auth)
+                                                  share_case_auth)
         return res
 
     def get_group_auth(self, group_id):
