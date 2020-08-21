@@ -24,6 +24,17 @@ def get_ini_path():
     return ini_path
 
 
+def get_report_path():
+    sep = os.path.sep
+    # 获取当前文件路径
+    current_path = os.path.abspath(__file__)
+    # 获取上一级目录
+    parent_path = current_path.split(sep)[:-2]
+    # 获取ini文件路径
+    report_path = sep.join(parent_path) + sep + 'report'
+    return report_path
+
+
 def create_random_str(str_len: int = 13):
     """生成随机字符串"""
     str_range = random.sample(string.ascii_letters, str_len)

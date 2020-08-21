@@ -3,10 +3,14 @@
 # 都君丨大魔王
 import os
 import shutil
+from api.other import get_report_path
+
+
+report_path = get_report_path()
 
 # 删除测试报告目录
 try:
-    shutil.rmtree('./report')
+    shutil.rmtree(report_path)
 except FileNotFoundError:
     ...
 
