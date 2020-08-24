@@ -269,7 +269,7 @@ class IdentifyApi:
         res = get_response(url, data)
         return res
 
-    def add_images(self, case_id, image_file_id, image_file_name):
+    def add_images(self, case_id, image_file_id, image_file_name, folder_id: str):
         """"""
         url = f"{server_address}/call?id=experts.AddImages&v="
         data = {
@@ -277,8 +277,22 @@ class IdentifyApi:
             'images': [{
                 'criminalCaseId': case_id,
                 'imageFileId': image_file_id,
-                'imageFileName': image_file_name
+                'imageFileName': image_file_name,
+                'folderId': folder_id
             }]
+        }
+        res = get_response(url, data)
+        return res
+
+    def save_image_windows(self, image_data: str, image_id: str):
+        """"""
+        url = f"{server_address}/call?id=experts.saveImageWindows&v="
+        data = {
+            'payload': [{
+                'data': image_data,
+                'imageId': image_id
+            }],
+            'sessionId': self.session_id
         }
         res = get_response(url, data)
         return res
@@ -301,6 +315,22 @@ class IdentifyApi:
         data = {
             'sessionId': self.session_id,
             'imageId': image_id
+        }
+        res = get_response(url, data)
+        return res
+
+    def remove_image_batch(self, image_id: list, status: int = 1):
+        """
+        删除图片
+        :param image_id:
+        :param status: 1-删除（到回收站），2-彻底删除
+        :return:
+        """
+        url = f"{server_address}/call?id=experts.removeImageBatch&v="
+        data = {
+            'imageId': image_id,
+            'sessionId': self.session_id,
+            'status': status
         }
         res = get_response(url, data)
         return res
