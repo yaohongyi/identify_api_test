@@ -5,6 +5,17 @@ from api.interface_api import login, IdentifyApi
 from api.other import get_config, get_file_name, find_object_from_list
 
 
+def operate_login(username, password):
+    """
+    登录鉴定系统
+    :param username:
+    :param password:
+    :return:
+    """
+    res = login(username, password)
+    return res
+
+
 class OperateApi:
     def __init__(self, username: str = 'yaocheng', password: str = '123456'):
         session_id = self.get_session_id(username, password)
