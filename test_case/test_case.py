@@ -30,6 +30,20 @@ class TestCase:
         find_result = api_object.find_case_in_case_list(case_name)
         assert find_result
 
+    def test_add_same_name_case(self, get_api_object):
+        """新增同名案件"""
+        api_object = get_api_object
+        excel_data = read_excel('test_add_same_name_case')
+        msg_keyword = excel_data.get('msg_keyword')
+        # 新增案件
+        case_name = create_case_name()
+        api_object.add_case(case_name)
+        # 新增重复案件
+        error_desc = api_object.add_case(case_name)
+        msg_check_result = error_desc.find(msg_keyword)
+        # 验证提示信息是否正确
+        assert msg_check_result != -1
+
     def test_rename_case(self, get_api_object):
         """案件重命名"""
         api_object = get_api_object

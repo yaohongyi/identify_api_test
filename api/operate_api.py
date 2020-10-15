@@ -49,10 +49,12 @@ class OperateApi:
         """新建案件"""
         res = self.identify_api.new_criminal_case(case_name, private_case)
         has_error = res.get('hasError')
-        case_id = None
         if has_error is False:
             case_id = res.get('data').get('criminalCaseId')
-        return case_id
+            return case_id
+        else:
+            error_desc = res.get('errorDesc')
+            return error_desc
 
     def rename_case(self, new_case_name: str, case_id: str):
         """重命名案件"""
