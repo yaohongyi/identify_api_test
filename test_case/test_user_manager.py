@@ -5,17 +5,15 @@ from api.other import read_excel
 
 
 class TestUser:
-    def test_add_auth_group(self, get_api_object, add_auth_group):
+    def test_add_auth_group(self, api_object, add_auth_group):
         """测试添加用户权限组"""
-        api_object = get_api_object
         group_name, group_id = add_auth_group
         # 验证权限组是否添加成功
         find_result = api_object.find_auth_group_by_name(group_name)
         assert find_result
 
-    def test_update_auth_group_name(self, get_api_object, add_auth_group):
+    def test_update_auth_group_name(self, api_object, add_auth_group):
         """测试修改权限组名称"""
-        api_object = get_api_object
         group_name, group_id = add_auth_group
         # 修改权限组名称
         new_group_name = group_name + "_new"
@@ -26,9 +24,8 @@ class TestUser:
         # 删除权限组
         api_object.del_auth_group(group_id)
 
-    def test_del_auth_group(self, get_api_object, add_auth_group):
+    def test_del_auth_group(self, api_object, add_auth_group):
         """测试删除权限组"""
-        api_object = get_api_object
         group_name, group_id = add_auth_group
         # 删除权限组
         api_object.del_auth_group(group_id)
@@ -36,9 +33,8 @@ class TestUser:
         find_result = api_object.find_auth_group_by_name(group_name)
         assert find_result is False
 
-    def test_update_auth_group(self, get_api_object, add_auth_group):
+    def test_update_auth_group(self, api_object, add_auth_group):
         """测试修改权限组权限"""
-        api_object = get_api_object
         group_name, group_id = add_auth_group
         # 从excel读取权限数据
         data = read_excel('test_update_auth_group')
@@ -64,18 +60,16 @@ class TestUser:
         assert over_case_auth == auth_list.get('AuthOverCase')
         assert share_case_auth == auth_list.get('AuthShareCase')
 
-    def test_add_user(self, get_api_object, add_user):
+    def test_add_user(self, api_object, add_user):
         """测试新增用户"""
-        api_object = get_api_object
         # 新增用户
         group_name, group_id, user_id, user_name = add_user
         # 验证用户是否新增成功
         find_result = api_object.find_user_by_name(group_id, user_name)
         assert find_result
 
-    def test_update_user(self, get_api_object, add_user):
+    def test_update_user(self, api_object, add_user):
         """测试编辑用户"""
-        api_object = get_api_object
         # 新增用户
         group_name, group_id, user_id, user_name = add_user
         # 编辑用户

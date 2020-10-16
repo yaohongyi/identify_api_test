@@ -7,9 +7,8 @@ from api.operate_api import operate_login
 
 class TestLogin:
     @staticmethod
-    def test_login_success(get_api_object):
+    def test_login_success(api_object):
         """成功登录"""
-        api_object = get_api_object
         excel_data = read_excel('test_login_success')
         username = excel_data.get('username')
         password = excel_data.get('password')
@@ -66,9 +65,8 @@ class TestLogin:
         error_desc = res.get('errorDesc')
         assert error_desc == msg
 
-    def test_change_password(self, get_api_object):
+    def test_change_password(self, api_object):
         """修改当前登录用户的密码"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_change_password')
         username = excel_data.get('username')

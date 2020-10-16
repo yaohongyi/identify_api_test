@@ -6,9 +6,8 @@ from api.other import create_case_name, read_excel, create_random_str, get_file_
 
 
 class TestCase:
-    def test_add_private_case(self, get_api_object):
+    def test_add_private_case(self, api_object):
         """新增私有案件"""
-        api_object = get_api_object
         excel_data = read_excel('test_add_private_case')
         private_case = bool(excel_data.get('private_case'))
         # 新增私有案件
@@ -18,9 +17,8 @@ class TestCase:
         find_result = api_object.find_case_in_case_list(case_name)
         assert find_result
 
-    def test_add_share_case(self, get_api_object):
+    def test_add_share_case(self, api_object):
         """新增共享案件"""
-        api_object = get_api_object
         excel_data = read_excel('test_add_share_case')
         private_case = bool(excel_data.get('private_case'))
         # 新增共享案件
@@ -30,9 +28,8 @@ class TestCase:
         find_result = api_object.find_case_in_case_list(case_name)
         assert find_result
 
-    def test_add_same_name_case(self, get_api_object):
+    def test_add_same_name_case(self, api_object):
         """新增同名案件"""
-        api_object = get_api_object
         excel_data = read_excel('test_add_same_name_case')
         msg_keyword = excel_data.get('msg_keyword')
         # 新增案件
@@ -44,9 +41,30 @@ class TestCase:
         # 验证提示信息是否正确
         assert msg_check_result != -1
 
-    def test_rename_case(self, get_api_object):
+    def test_add_case_to_classify(self, api_object):
+        """新增案件到指定案件分类下"""
+        # 新增案件分类
+        level_1_classify_name = create_random_str(8)
+        res_1 = api_object.add_level_1_case_classify(level_1_classify_name)
+        level_1_classify_id = res_1.get('data').get('typeId')
+        # 新增二级案件分类
+        level_2_classify_name = create_random_str(8)
+        classify_list = [
+            {"parentId": level_1_classify_id, "sign": f"name0-{level_2_classify_name}", "name": level_2_classify_name}
+        ]
+        api_object.add_level_2_case_classify(classify_list)
+        level_2_classify_id = api_object.get_case_classify_id(level_1_classify_id, level_2_classify_name)
+        # 新增案件
+        case_name = create_case_name()
+        case_id = api_object.add_case(case_name, case_classify_id=level_2_classify_id)
+        # 断言案件是否在案件分类下
+        classify_id = api_object.get_case_belong_classify_id(case_id)
+        assert level_2_classify_id == classify_id
+        # 直接删除一级案件分类进行环境还原
+        api_object.remove_case_classify(level_1_classify_id)
+
+    def test_rename_case(self, api_object):
         """案件重命名"""
-        api_object = get_api_object
         # 新建案件
         case_name = create_case_name()
         case_id = api_object.add_case(case_name)
@@ -57,9 +75,8 @@ class TestCase:
         find_result = api_object.find_case_in_case_list(new_case_name)
         assert find_result
 
-    def test_remove_case(self, get_api_object):
+    def test_remove_case(self, api_object):
         """从案件列表删除案件"""
-        api_object = get_api_object
         # 新建案件
         case_name = create_case_name()
         case_id = api_object.add_case(case_name)
@@ -72,9 +89,8 @@ class TestCase:
         find_recycle_bin_result = api_object.find_case_in_recycle_bin(case_name)
         assert find_recycle_bin_result
 
-    def test_restore_case(self, get_api_object):
+    def test_restore_case(self, api_object):
         """从案件回收站还原案件"""
-        api_object = get_api_object
         # 新建案件
         case_name = create_case_name()
         case_id = api_object.add_case(case_name)
@@ -89,9 +105,8 @@ class TestCase:
         find_case_list_result = api_object.find_case_in_case_list(case_name)
         assert find_case_list_result
 
-    def test_complete_remove_case(self, get_api_object):
+    def test_complete_remove_case(self, api_object):
         """从案件回收站彻底删除案件"""
-        api_object = get_api_object
         # 新建案件
         case_name = create_case_name()
         case_id = api_object.add_case(case_name)
@@ -106,30 +121,26 @@ class TestCase:
         find_case_list_result = api_object.find_case_in_case_list(case_name)
         assert find_case_list_result is False
 
-    def test_sync_my_case(self, get_api_object):
+    def test_sync_my_case(self, api_object):
         """测试同步我的案件"""
-        api_object = get_api_object
         res = api_object.sync_my_case()
         has_error = res.get('hasError')
         assert has_error is False
 
-    def test_sync_other_case(self, get_api_object):
+    def test_sync_other_case(self, api_object):
         """测试同步他人案件"""
-        api_object = get_api_object
         res = api_object.sync_other_case()
         has_error = res.get('hasError')
         assert has_error is False
 
-    def test_sync_all_case(self, get_api_object):
+    def test_sync_all_case(self, api_object):
         """测试同步所有案件"""
-        api_object = get_api_object
         res = api_object.sync_all_case()
         has_error = res.get('hasError')
         assert has_error is False
 
-    def test_add_folder(self, get_api_object):
+    def test_add_folder(self, api_object):
         """测试新增文件夹"""
-        api_object = get_api_object
         # 新建案件
         case_name = create_case_name()
         case_id = api_object.add_case(case_name)
@@ -140,9 +151,8 @@ class TestCase:
         find_result = api_object.find_folder_by_id(case_id, folder_id)
         assert find_result
 
-    def test_upload_voice(self, get_api_object):
+    def test_upload_voice(self, api_object):
         """上传音频"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_upload_voice')
         file_path = excel_data.get('file_path')
@@ -158,9 +168,8 @@ class TestCase:
         find_result = api_object.find_file_by_id(case_id, folder_id, file_id)
         assert find_result
 
-    def test_remove_voice(self, get_api_object):
+    def test_remove_voice(self, api_object):
         """删除音频"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_remove_voice')
         file_path = excel_data.get('file_path')
@@ -178,9 +187,8 @@ class TestCase:
         find_result = api_object.find_file_by_id(case_id, folder_id, file_id)
         assert find_result is False
 
-    def test_upload_picture(self, get_api_object):
+    def test_upload_picture(self, api_object):
         """上传图片"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_upload_picture')
         file_path = excel_data.get('file_path')
@@ -197,9 +205,8 @@ class TestCase:
         find_result = api_object.find_file_by_id(case_id, folder_id, file_id)
         assert find_result
 
-    def test_remove_picture(self, get_api_object):
+    def test_remove_picture(self, api_object):
         """删除图片"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_remove_picture')
         file_path = excel_data.get('file_path')
@@ -218,9 +225,8 @@ class TestCase:
         find_result = api_object.find_file_by_id(case_id, folder_id, file_id)
         assert find_result is False
 
-    def test_rename_file(self, get_api_object):
+    def test_rename_file(self, api_object):
         """测试文件重命名"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_upload_picture')
         file_path = excel_data.get('file_path')
@@ -240,9 +246,8 @@ class TestCase:
         find_result = api_object.find_file_by_name(case_id, folder_id, new_name)
         assert find_result
 
-    def test_case_allocate_user(self, get_api_object):
+    def test_case_allocate_user(self, api_object):
         """分发案件个单个用户"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_case_allocate_user')
         file_path = excel_data.get('file_path')
@@ -271,9 +276,38 @@ class TestCase:
         find_result = new_operate_api.find_case_in_case_list(target_case_name)
         assert find_result
 
-    def test_add_tag(self, get_api_object):
+    def test_remove_other_people_case(self, api_object):
+        """测试删除其他用户的案件"""
+        # 从excel读取数据
+        excel_data = read_excel('test_remove_other_people_case')
+        target_user_group = excel_data.get('target_user_group')
+        target_username = excel_data.get('target_username')
+        msg = excel_data.get('msg')
+        # 新建案件
+        case_name = create_case_name()
+        case_id = api_object.add_case(case_name)
+        # 获取用户id
+        user_group_id = api_object.get_auth_group_id_by_name(target_user_group)
+        user_id = api_object.get_user_id_by_name(user_group_id, target_username)
+        # 将案件转发给他人
+        user_ids = list()
+        user_ids.append(user_id)
+        api_object.case_allocate(case_id, user_ids)
+        # 获取分别出去的案件id
+        target_case_name = case_name + '_' + target_username
+        target_case_id = api_object.get_case_id(target_case_name, target_username)
+        # 删除分别给他人的案件
+        res = api_object.remove_case(target_case_id)
+        # 如果删除失败，则说明执行成功
+        has_error = res.get('hasError')
+        assert has_error
+        if has_error:
+            # 验证删除失败的提示信息
+            error_desc = res.get('errorDesc')
+            assert error_desc == msg
+
+    def test_add_tag(self, api_object):
         """测试添加标记"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_add_tag')
         file_path = excel_data.get('file_path')
@@ -300,9 +334,8 @@ class TestCase:
         assert (res_tag_name == tag_name and res_tag_comment == comment and res_begin_time == begin_time
                 and res_end_time == end_time)
 
-    def test_update_tag(self, get_api_object):
+    def test_update_tag(self, api_object):
         """测试更新标记"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_update_tag')
         file_path = excel_data.get('file_path')
@@ -335,9 +368,8 @@ class TestCase:
         assert (res_tag_name == new_tag_name and res_tag_comment == new_comment and
                 res_begin_time == new_begin_time and res_end_time == new_end_time)
 
-    def test_remove_tag(self, get_api_object):
+    def test_remove_tag(self, api_object):
         """测试删除标记"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_remove_tag')
         file_path = excel_data.get('file_path')
@@ -374,9 +406,8 @@ class TestCase:
         find_result_4 = api_object.find_tag_in_recycle_by_id(case_id, tag_id_2)
         assert find_result_4
 
-    def test_recover_tag(self, get_api_object):
+    def test_recover_tag(self, api_object):
         """回收站还原标记"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_recover_tag')
         file_path = excel_data.get('file_path')
@@ -415,9 +446,8 @@ class TestCase:
         find_result_4 = api_object.find_tag_in_recycle_by_id(case_id, tag_id_2)
         assert find_result_4 is False
 
-    def test_complete_remove_tag(self, get_api_object):
+    def test_complete_remove_tag(self, api_object):
         """回收站彻底删除标记"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_complete_remove_tag')
         file_path = excel_data.get('file_path')
@@ -451,9 +481,8 @@ class TestCase:
         find_result_4 = api_object.find_tag_in_recycle_by_id(case_id, tag_id_2)
         assert find_result_4 is False
 
-    def test_add_hearing_analysis(self, get_api_object):
+    def test_add_hearing_analysis(self, api_object):
         """测试新增听觉量化分析记录"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_add_hearing_analysis')
         file_path_1 = excel_data.get('file_path_1')
@@ -534,9 +563,8 @@ class TestCase:
         find_result = api_object.find_hearing_analysis_by_id(case_id, hearing_id)
         assert find_result
 
-    def test_del_hearing_analysis(self, get_api_object):
+    def test_del_hearing_analysis(self, api_object):
         """测试删除听觉量化分析记录"""
-        api_object = get_api_object
         # 从excel读取数据
         excel_data = read_excel('test_del_hearing_analysis')
         file_path_1 = excel_data.get('file_path_1')

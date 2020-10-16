@@ -45,9 +45,9 @@ class OperateApi:
         user_id = res.get('data').get('userid')
         return user_id
 
-    def add_case(self, case_name: str, private_case: bool = True):
+    def add_case(self, case_name: str, private_case: bool = True, share_case: bool = False, case_classify_id: str = ""):
         """新建案件"""
-        res = self.identify_api.new_criminal_case(case_name, private_case)
+        res = self.identify_api.new_criminal_case(case_name, private_case, share_case, case_classify_id)
         has_error = res.get('hasError')
         if has_error is False:
             case_id = res.get('data').get('criminalCaseId')
@@ -106,6 +106,22 @@ class OperateApi:
                     else:
                         result = False
         return result
+
+    def get_case_id(self, case_name, owner_name):
+        """
+        获取案件id
+        :param case_name: 目标案件名称
+        :param owner_name: 案件创建人
+        :return:
+        """
+        res = self.identify_api.list_criminal_case(case_type=16)
+        case_list = res.get('data').get('caseList')
+        for case in case_list:
+            res_case_name = case.get('caseName')
+            res_owner_name = case.get('ownerName')
+            if res_case_name == case_name and res_owner_name == owner_name:
+                case_id = case.get('criminalCaseId')
+                return case_id
 
     def remove_case(self, case_id: str):
         """从案件列表删除案件"""
@@ -521,9 +537,109 @@ class OperateApi:
         res = self.identify_api.update_user_auth_group(to_group_id, user_id, user_name)
         return res
 
+    def add_level_1_case_classify(self, classify_name, parent_id=''):
+        """新增一级案件分类"""
+        res = self.identify_api.add_case_classify(classify_name, parent_id)
+        return res
+
+    def add_level_2_case_classify(self, classify_list):
+        """新增二级案件分类"""
+        res = self.identify_api.add_case_classify_s(classify_list)
+        return res
+
+    def find_case_classify_by_id(self, classify_id):
+        """"""
+        res = self.identify_api.list_all_case_classify()
+        find_result = find_object_from_list(res, 'typeList', classify_id, 'typeId')
+        return find_result
+
+    def find_case_classify_name_by_id(self, classify_id, classify_name):
+        """"""
+        res = self.identify_api.list_all_case_classify()
+        find_result = False
+        has_error = res.get('hasError')
+        if has_error is False:
+            classify_list = res.get('data').get('typeList')
+            if classify_list:
+                for x in classify_list:
+                    type_id = x.get('typeId')
+                    if type_id == classify_id:
+                        name = x.get('name')
+                        if name == classify_name:
+                            find_result = True
+                            break
+        return find_result
+
+    def find_level_2_case_classify(self, classify_name, level_1_classify_id):
+        """
+        查找二级案件分类
+        :param classify_name: 二级案件分类名称
+        :param level_1_classify_id: 一级案件分类id
+        :return:
+        """
+        res = self.identify_api.list_all_case_classify()
+        find_result = False
+        has_error = res.get('hasError')
+        if has_error is False:
+            classify_list = res.get('data').get('typeList')
+            if classify_list:
+                for x in classify_list:
+                    classify_id = x.get('typeId')
+                    # 跳过一级案件分类的查找
+                    if classify_id == level_1_classify_id:
+                        continue
+                    else:
+                        # 先看二级案件分类名称是否存在
+                        name = x.get('name')
+                        if name == classify_name:
+                            # 查看二级案件分类的父节点id是否为指定的一级案件分类id
+                            parent_id = x.get('parentId')
+                            if parent_id == level_1_classify_id:
+                                find_result = True
+                                break
+        return find_result
+
+    def get_case_classify_id(self, parent_id, classify_name):
+        """
+        获取案件类别id
+        :param parent_id: 父案件类别id，为空则查找一级案件类别
+        :param classify_name: 案件类别名称
+        :return:
+        """
+        res = self.identify_api.list_all_case_classify()
+        has_error = res.get('hasError')
+        if has_error is False:
+            classify_list = res.get('data').get('typeList')
+            if classify_list:
+                for x in classify_list:
+                    res_parent_id = x.get('parentId')
+                    res_name = x.get('name')
+                    if res_parent_id == parent_id and res_name == classify_name:
+                        classify_id = x.get('typeId')
+                        return classify_id
+        return None
+
+    def remove_case_classify(self, classify_id):
+        """删除案件分类"""
+        res = self.identify_api.remove_case_classify(classify_id)
+        return res
+
+    def edit_case_classify(self, classify_id, classify_name):
+        """编辑案件分类名称"""
+        res = self.identify_api.edit_case_classify(classify_id, classify_name)
+        return res
+
+    def get_case_belong_classify_id(self, case_id):
+        """"""
+        res = self.identify_api.list_criminal_case(case_type=16)
+        case_list = res.get('data').get('caseList')
+        for case in case_list:
+            res_case_id = case.get('criminalCaseId')
+            if res_case_id == case_id:
+                classify_id = case.get('typeId')
+                return classify_id
+
 
 if __name__ == '__main__':
     # from api.other import create_case_name, create_random_str
     operate_api = OperateApi()
-    a = operate_api.get_auth_group_id_by_name('都君')
-    print(a)

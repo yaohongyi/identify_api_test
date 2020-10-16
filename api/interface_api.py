@@ -103,30 +103,38 @@ class IdentifyApi:
         res = get_response(url, data)
         return res
 
-    def new_criminal_case(self, case_name: str, private_case: bool = True):
+    def new_criminal_case(self, case_name: str, private_case: bool = True, share_case: bool = False,
+                          case_classify_id: str = ""):
         """
         新建案件
         :param case_name: 案件名
         :param private_case: 案件属性
+        :param share_case: 是否为共享案件
+        :param case_classify_id: 所属案件分类（二级分类id）
         :return: res
         """
         url = f"{server_address}/call?id=experts.newCriminalCase&v="
         data = {
             "sessionId": self.session_id,
             "caseName": case_name,
-            "privateCase": private_case
+            "privateCase": private_case,
+            "ShareCase": share_case,
+            "typeId": case_classify_id
         }
         res = get_response(url, data)
         return res
 
-    def list_criminal_case(self, offset=0, limit=99999, key_word: list = None, remove_type: int = 0, case_type=1):
+    def list_criminal_case(self, offset=0, limit=99999, key_word: list = None, remove_type: int = 0, case_type=1,
+                           first_case_classify_id: str = "", second_case_classify_id: str = ""):
         """
         获取案件列表
         :param offset: 偏移
         :param limit: 数量
         :param key_word: 关键字
         :param remove_type: 0-案件列表，10-案件回收站
-        :param case_type: 1-我的案件，2-他人案件，16-所有案件
+        :param case_type: 1-我的案件，2-分发案件，16-所有案件，128-共享案件
+        :param first_case_classify_id: 一级案件分类id
+        :param second_case_classify_id: 二级案件分类id
         :return:
         """
         url = f"{server_address}/call?id=experts.listCriminalCase&v="
@@ -136,7 +144,9 @@ class IdentifyApi:
             "limit": limit,
             "removeType": remove_type,
             "key_word": key_word,
-            "type": case_type
+            "type": case_type,
+            "firstLevel": first_case_classify_id,
+            "secondLevel": second_case_classify_id
         }
         res = get_response(url, data)
         return res
@@ -1299,6 +1309,78 @@ class IdentifyApi:
             "criminalCaseId": case_id,
             "materialFileId": material_file_id,
             "sessionId": self.session_id
+        }
+        res = get_response(url, data)
+        return res
+
+    def add_case_classify(self, classify_name, parent_id=''):
+        """
+        新增一级案件分类
+        :param classify_name: 案件分类名称
+        :param parent_id:
+        :return:
+        """
+        url = f"{server_address}/call?id=experts.addCriminalCaseType&v="
+        data = {
+            "sessionId": self.session_id,
+            "parentId": parent_id,
+            "name": classify_name
+        }
+        res = get_response(url, data)
+        return res
+
+    def list_all_case_classify(self):
+        """
+        列出所有案件分类
+        :return:
+        """
+        url = f"{server_address}/call?id=experts.listAllCriminalCaseType&v="
+        data = {
+            "sessionId": self.session_id
+        }
+        res = get_response(url, data)
+        return res
+
+    def add_case_classify_s(self, classify_list: list):
+        """
+        新增二级案件分类
+        :param classify_list:
+        :return:
+        """
+        url = f"{server_address}/call?id=experts.addCriminalCaseTypes&v="
+        data = {
+            "sessionId": self.session_id,
+            "types": classify_list
+        }
+        res = get_response(url, data)
+        return res
+
+    def edit_case_classify(self, classify_id, classify_name):
+        """
+        编辑案件分类信息（一级分类和二级分类共用一个接口）
+        :param classify_id:
+        :param classify_name:
+        :return:
+        """
+        url = f"{server_address}/call?id=experts.editCriminalCaseType&v="
+        data = {
+            "sessionId": self.session_id,
+            "typeId": classify_id,
+            "name": classify_name
+        }
+        res = get_response(url, data)
+        return res
+
+    def remove_case_classify(self, classify_id):
+        """
+        删除案件分类
+        :param classify_id:
+        :return:
+        """
+        url = f"{server_address}/call?id=experts.removeCriminalCaseType&v="
+        data = {
+            "sessionId": self.session_id,
+            "typeId": classify_id
         }
         res = get_response(url, data)
         return res

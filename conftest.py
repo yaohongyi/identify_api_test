@@ -11,17 +11,17 @@ password = get_config('base_info', 'password')
 
 
 @pytest.fixture(scope='class')
-def get_api_object():
+def api_object():
     api_object = OperateApi(username, password)
     yield api_object
     api_object.del_test_case()
 
 
 @pytest.fixture(scope='function')
-def add_auth_group(get_api_object):
+def add_auth_group(api_object):
     """新增用户组，测试结束删除用户组"""
     group_name = get_config('base_info', 'auth_group_name')
-    api_object = get_api_object
+    api_object = api_object
     api_object.add_auth_group(group_name)
     group_id = api_object.get_auth_group_id_by_name(group_name)
     yield group_name, group_id
@@ -29,9 +29,9 @@ def add_auth_group(get_api_object):
 
 
 @pytest.fixture(scope='function')
-def add_user(get_api_object, add_auth_group):
+def add_user(api_object, add_auth_group):
     """新增用户组，测试结束删除用户组"""
-    api_object = get_api_object
+    api_object = api_object
     group_name, group_id = add_auth_group
     auth_user_name = get_config('base_info', 'auth_user_name')
     # 新增用户
@@ -43,4 +43,4 @@ def add_user(get_api_object, add_auth_group):
 
 
 if __name__ == '__main__':
-    get_api_object()
+    api_object()
