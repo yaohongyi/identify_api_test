@@ -639,6 +639,12 @@ class OperateApi:
                 classify_id = case.get('typeId')
                 return classify_id
 
+    def get_case_classify_list(self):
+        """获取案件分类清单"""
+        res = self.identify_api.list_all_case_classify()
+        case_classify_list = res.get('data').get('typeList')
+        return case_classify_list
+
 
 if __name__ == '__main__':
     # from api.other import create_case_name, create_random_str
