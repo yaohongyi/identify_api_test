@@ -16,7 +16,7 @@ except FileNotFoundError:
 
 # 运行测试用例并生成测试结果数据
 # create_report_command = 'pytest ./test_case/test_login.py -k test_password_wrong'  # 登录
-# create_report_command = 'pytest ./test_case/test_case.py -k test_add_case_to_classify'  # 案件
+# create_report_command = 'pytest ./test_case/test_case.py -k '  # 案件
 # create_report_command = 'pytest ./test_case/test_user_manager.py -k test_update_auth_group'  # 用户管理
 # create_report_command = 'pytest ./test_case/test_system_setting.py -k test_remove_case_classify'  # 系统设置
 create_report_command = 'pytest -q --alluredir report'  # 执行所有模块

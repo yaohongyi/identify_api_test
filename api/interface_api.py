@@ -103,20 +103,24 @@ class IdentifyApi:
         res = get_response(url, data)
         return res
 
-    def new_criminal_case(self, case_name: str, private_case: bool = True, share_case: bool = False,
-                          case_classify_id: str = ""):
+    def new_criminal_case(self, case_name: str, private_case: bool = False, share_case: bool = False,
+                          case_classify_id: str = "", share_user_list: list = None):
         """
         新建案件
         :param case_name: 案件名
         :param private_case: 案件属性
         :param share_case: 是否为共享案件
         :param case_classify_id: 所属案件分类（二级分类id）
+        :param share_user_list: 分享用户id列表
         :return: res
         """
         url = f"{server_address}/call?id=experts.newCriminalCase&v="
+        if share_user_list is None:
+            share_user_list = []
         data = {
             "sessionId": self.session_id,
             "caseName": case_name,
+            "shareUserList": share_user_list,
             "privateCase": private_case,
             "ShareCase": share_case,
             "typeId": case_classify_id
